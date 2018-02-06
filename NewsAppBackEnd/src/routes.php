@@ -43,11 +43,12 @@ $app->group("/api", function() {
     }
 
     $sth = $this->db->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $sth->execute(array($username, md5($password)));
+    $sth->execute(array($username, password_hash($password, PASSWORD_DEFAULT)));
 
     return $response->withJson(['success' => true, 'message' => 'User created !']);
   });
 
+  // Route pour se logger
   $this->post('/user/login', function(Request $request, Response $response, array $args) {
     $body = $request->getParsedBody();
 
@@ -58,24 +59,23 @@ $app->group("/api", function() {
       return $response->withJson(['success' => false, 'message' => 'Need username and password']);
     }
 
-    $sth = $this->db->prepare("SELECT username FROM users WHERE username = ? && password = ?");
-    $sth->execute(array($username, md5($password)));
+    $sth = $this->db->prepare("SELECT * FROM users WHERE username = ?");
+    $sth->execute(array($username));
 
-    $users = $sth->fetchAll();
+    $user = $sth->fetch();
 
-    if (count($users) <= 0) {
+    if (!password_verify($password, $user["password"])) {
       return $response->withJson(['success' => false, 'message' => 'Username or Password is not correct']);
     }
 
     $now = new DateTime();
     $future = new DateTime("+1 hour");
-    $server = $request->getServerParams();
     $jti= (new Base62)->encode(random_bytes(16));
     $payload = [
       "iat" => $now->getTimeStamp(),
       "exp" => $future->getTimeStamp(),
       "jti" => $jti,
-      "sub" => $server["PHP_AUTH_USER"]
+      "user_id" => $user['id']
     ];
 
     $secret = "mysecrettoken";
@@ -86,12 +86,17 @@ $app->group("/api", function() {
 
   //Permet de récuperer tous les news
   $this->get('/news', function (Request $request, Response $response, array $args) {
-    $sth = $this->db->prepare("SELECT * FROM news");
+    $sth = $this->db->prepare("SELECT news.id, news.title, news.content, users.username AS author FROM news INNER JOIN users ON users.id = news.user_id");
     $sth->execute();
     $news = $sth->fetchAll();
     $json["success"] = true;
     $json["data"] = $news;
     return $this->response->withJson($json);
+  });
+
+  //Permet d'ajouter une nouveauté en base de données
+  $this->post('/article/create', function (Request $request, Response $response, array $args) {
+    return $this->response->withJson($request->getAttribute("jwt"));
   });
 
 });

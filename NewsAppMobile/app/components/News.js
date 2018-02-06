@@ -21,7 +21,10 @@ class Article extends React.Component {
                 onPress={() => Alert.alert("Go view " + this.props.title)}
                 background={Platform.OS === 'android' ? TouchableNativeFeedback.SelectableBackground() : ''}>
                 <View style={styles.article}>
-                    <Text style={styles.articleTitle}>{this.props.title}</Text>
+                    <View style={styles.articleHeader}>
+                        <Text style={styles.articleTitle}>{this.props.title}</Text>
+                        <Text style={styles.articleAuthor}>By {this.props.author}</Text>
+                    </View>
                     <Text numberOfLines={2}>{this.props.content}</Text>
                 </View>
             </TouchableNativeFeedback>
@@ -81,7 +84,7 @@ export default class News extends React.Component {
                 <FlatList
                     data={this.state.news}
                     renderItem={
-                        ({item}) => <Article title={item.title} content={item.content} id={item.id} />
+                        ({item}) => <Article title={item.title} content={item.content} id={item.id} author={item.author} />
                     }
                     keyExtractor={(item, index) => index}
                 />
@@ -106,9 +109,21 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#7f8fa6'
     },
+    articleHeader: {
+        flex: 1,
+        alignItems: 'flex-start',
+        flexDirection: 'row'
+    },
     articleTitle: {
         color: '#9c88ff',
         fontWeight: 'bold',
         fontSize: 24,
+        alignSelf: 'center'
+    },
+    articleAuthor: {
+        color: "#7f8fa6",
+        fontSize: 12,
+        alignSelf: 'center',
+        marginLeft: 10
     }
 });

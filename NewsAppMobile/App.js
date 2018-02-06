@@ -1,27 +1,37 @@
 import React from 'react';
 import {Alert, TouchableNativeFeedback} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { StackNavigator } from 'react-navigation'
+import Icon from 'react-native-vector-icons/Ionicons'
+import { TabNavigator, TabBarBottom } from 'react-navigation'
 import Login from './app/components/Login'
 import News from './app/components/News'
 
-const Application = StackNavigator(
+const Application = TabNavigator(
     {
         Home: { screen: News },
-        News: { screen: News}
+        Login: { screen: Login }
     }, {
         initialRouteName: 'Home',
-        navigationOptions: {
-            headerStyle: {
-                backgroundColor: "#273c75"
+        navigationOptions: ({ navigation }) => ({
+            tabBarIcon: ({ focused, tintColor }) => {
+                const { routeName } = navigation.state;
+                let iconName;
+                if (routeName === 'Home') {
+                    iconName = `ios-home${focused ? '' : '-outline'}`;
+                } else if (routeName === 'Login') {
+                    iconName = `ios-options${focused ? '' : '-outline'}`;
+                }
+
+                // You can return any component that you like here! We usually use an
+                // icon component from react-native-vector-icons
+                return <Icon name={iconName} size={25} color={tintColor} />;
             },
-            headerTintColor: "#f5f6fa",
-            headerRight: (
-                <TouchableNativeFeedback onPress={() => Alert.alert('GO CONNECT')}>
-                    <Icon name="login-variant" size={24} color="#f5f6fa" style={{marginRight:10}}/>
-                </TouchableNativeFeedback>
-            )
-        }
+        }),
+        tabBarComponent: TabBarBottom,
+        tabBarPosition: 'top',
+        tabBarOptions: {
+            activeTintColor: '#273c75',
+            inactiveTintColor: 'gray',
+        },
     }
 );
 

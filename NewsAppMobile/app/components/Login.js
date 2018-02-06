@@ -4,12 +4,11 @@ import {
     Text,
     View,
     TextInput,
-    KeyboardAvoidingView,
     TouchableOpacity,
     AsyncStorage,
     Alert
 } from 'react-native'
-import { StackNavigator } from 'react-navigation'
+import Api from '../Api'
 
 export default class Login extends React.Component {
     constructor(props) {
@@ -25,14 +24,15 @@ export default class Login extends React.Component {
     }
 
     async _loadInitialState() {
-        let value = await AsyncStorage.getItem('user');
+        let value = await AsyncStorage.getItem('user_token');
         if (value !== null) {
             this.props.navigation.navigate('News');
         }
     }
 
     login = () => {
-        fetch('http://192.168.0.49:3000/users/login', {
+        const {navigation} = this.props;
+        fetch(Api.LOGIN, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -43,13 +43,17 @@ export default class Login extends React.Component {
                 password: this.state.password
             })
         })
-            .then((res) => res.json())
             .then((res) => {
-                if (res.success === true) {
-                    AsyncStorage.setItem('user', res.user);
-                    this.props.navigation.navigate('News');
+                const statusCode = res.status;
+                const data = res.json();
+                return Promise.all([statusCode, data]);
+            })
+            .then(([res, data]) => {
+                if (data.success === true) {
+                    AsyncStorage.setItem('user_token', data.token);
+                    navigation.navigate('Home');
                 } else {
-                    alert(res.message)
+                    Alert.alert(data.message)
                 }
             })
             .done()
@@ -57,7 +61,7 @@ export default class Login extends React.Component {
 
     render() {
         return (
-            <KeyboardAvoidingView behavior='padding' style={styles.wrapper}>
+            <View behavior='padding' style={styles.wrapper}>
                 <View style={styles.container}>
                     <Text style={styles.header}>Connexion</Text>
                     <TextInput style={styles.textInput}
@@ -77,7 +81,7 @@ export default class Login extends React.Component {
                         <Text style={styles.textWhite}>Se connecter</Text>
                     </TouchableOpacity>
                 </View>
-            </KeyboardAvoidingView>
+            </View>
         );
     }
 }

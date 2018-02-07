@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import Api from '../Api'
 
-export default class Login extends React.Component {
+export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -19,20 +19,10 @@ export default class Login extends React.Component {
         }
     }
 
-    componentDidMount() {
-        this._loadInitialState().done();
-    }
-
-    async _loadInitialState() {
-        let value = await AsyncStorage.getItem('user_token');
-        if (value !== null) {
-            this.props.navigation.navigate('News');
-        }
-    }
-
-    login = () => {
+    register = () => {
         const {navigation} = this.props;
-        fetch(Api.LOGIN, {
+
+        fetch(Api.REGISTER, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -49,12 +39,9 @@ export default class Login extends React.Component {
                 return Promise.all([statusCode, data]);
             })
             .then(([res, data]) => {
-                if (data.success === true) {
-                    AsyncStorage.setItem('user_token', data.token);
-                    navigation.navigate('Home');
-                } else {
-                    Alert.alert(data.message)
-                }
+                Alert.alert(data.message);
+                if (data.success === true)
+                    navigation.goBack();
             })
             .done()
     }
@@ -63,7 +50,6 @@ export default class Login extends React.Component {
         return (
             <View behavior='padding' style={styles.wrapper}>
                 <View style={styles.container}>
-                    <Text style={styles.header}>Connexion</Text>
                     <TextInput style={styles.textInput}
                                placeholder='Pseudo'
                                onChangeText={(username) => this.setState({username})}
@@ -77,8 +63,8 @@ export default class Login extends React.Component {
 
                     <TouchableOpacity
                         style={styles.btn}
-                        onPress={this.login}>
-                        <Text style={styles.textWhite}>Se connecter</Text>
+                        onPress={this.register}>
+                        <Text style={styles.textWhite}>S'enregistrer</Text>
                     </TouchableOpacity>
                 </View>
             </View>

@@ -1,42 +1,33 @@
 import React from 'react';
-import {Alert, TouchableNativeFeedback} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'
-import { TabNavigator, TabBarBottom } from 'react-navigation'
-import Login from './app/components/Login'
-import News from './app/components/News'
-
-const Application = TabNavigator(
-    {
-        Home: { screen: News },
-        Login: { screen: Login }
-    }, {
-        initialRouteName: 'Home',
-        navigationOptions: ({ navigation }) => ({
-            tabBarIcon: ({ focused, tintColor }) => {
-                const { routeName } = navigation.state;
-                let iconName;
-                if (routeName === 'Home') {
-                    iconName = `ios-home${focused ? '' : '-outline'}`;
-                } else if (routeName === 'Login') {
-                    iconName = `ios-options${focused ? '' : '-outline'}`;
-                }
-
-                // You can return any component that you like here! We usually use an
-                // icon component from react-native-vector-icons
-                return <Icon name={iconName} size={25} color={tintColor} />;
-            },
-        }),
-        tabBarComponent: TabBarBottom,
-        tabBarPosition: 'top',
-        tabBarOptions: {
-            activeTintColor: '#273c75',
-            inactiveTintColor: 'gray',
-        },
-    }
-);
+import { Alert } from 'react-native';
+import { rootNavigator } from './app/router';
+import { isSignedIn } from "./app/auth";
 
 export default class App extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            signedIn: false,
+            checkedSignIn: false
+        }
+    }
+
+    componentWillMount() {
+        isSignedIn()
+            .then( res => this.setState({signedIn: res, checkedSignIn: true}) )
+            .catch(err => Alert.alert("An error occured !"));
+    }
+
     render() {
-        return ( <Application /> )
+        const { checkedSignIn, signedIn } = this.state;
+
+        if (!checkedSignIn) {
+            return null;
+        }
+
+        const Layout = rootNavigator(signedIn);
+        return ( <Layout /> )
     }
 }

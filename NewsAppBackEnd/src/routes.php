@@ -96,7 +96,21 @@ $app->group("/api", function() {
 
   //Permet d'ajouter une nouveauté en base de données
   $this->post('/article/create', function (Request $request, Response $response, array $args) {
-    return $this->response->withJson($request->getAttribute("jwt"));
+    $body = $request->getParsedBody();
+    $jwt = $request->getAttribute("jwt");
+
+    $title = $body["title"];
+    $content = $body["content"];
+    $user_id = $jwt->user_id;
+
+    if (empty($title) || !isset($title) || empty($content) && !isset($contentn)) {
+      return $response->withJson(['success' => false, 'message' => 'Need title and content']);
+    }
+
+    $sth = $this->db->prepare("INSERT INTO news (title, content, user_id) VALUES (?, ?, ?)");
+    $sth->execute(array($title, $content, $user_id));
+
+    return $this->response->withJson(["success" => true, "message" => "New article posted !"]);
   });
 
 });

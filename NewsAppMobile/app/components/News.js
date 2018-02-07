@@ -7,7 +7,8 @@ import {
     ScrollView,
     Button,
     ToastAndroid,
-    FlatList, TouchableNativeFeedback, Alert, Platform
+    FlatList, TouchableNativeFeedback, Alert, Platform, RefreshControl,
+    AsyncStorage
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Api from '../Api'
@@ -34,17 +35,18 @@ class Article extends React.Component {
 
 export default class News extends React.Component {
     static navigationOptions = {
-        title: "News",
+            title: "News",
     };
 
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: true
-        }
+            isLoading: true,
+            refreshing: false
+        };
     }
 
-    componentDidMount() {
+    fetchData() {
         return fetch(Api.NEWS)
             .then((res) => {
                 const statusCode = res.status;
@@ -70,6 +72,17 @@ export default class News extends React.Component {
             });
     }
 
+    _onRefresh(){
+        this.setState({refreshing: true});
+        this.fetchData().then(() => {
+            this.setState({refreshing: false})
+        })
+    }
+
+    componentWillMount() {
+        return this.fetchData()
+    }
+
     render() {
         if (this.state.isLoading) {
             return (
@@ -80,7 +93,12 @@ export default class News extends React.Component {
         }
 
         return (
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this._onRefresh.bind(this)}/>
+                        }>
                 <FlatList
                     data={this.state.news}
                     renderItem={

@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#4cd137',
         padding: 20,
         alignItems: 'center',
+        borderRadius: 5
     },
     textWhite: {
         color: '#f5f6fa'

@@ -6,11 +6,37 @@ import News from './components/News';
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import Profile from './components/Profile';
+import EditArticle from "./components/EditArticle";
+
+export const ArticleNav = StackNavigator(
+    {
+        News: {
+            screen: News,
+            navigationOptions: {
+                header: null
+            }
+        },
+        NewArticle: {
+            screen: EditArticle,
+            navigationOptions: {
+                title: "Nouvel article",
+            },
+        },
+    },
+    {
+        navigationOptions: {
+            headerStyle: {
+                backgroundColor: "#273c75"
+            },
+            headerTintColor: "#f5f6fa"
+        },
+    }
+);
 
 export const SignedIn = TabNavigator(
     {
         News: {
-            screen: News,
+            screen: ArticleNav,
             navigationOptions: {
                 tabBarLabel: 'News',
                 tabBarIcon: ({tintColor}) => (
@@ -25,6 +51,13 @@ export const SignedIn = TabNavigator(
                 tabBarIcon: ({tintColor}) => (
                     <Entypo name="user" size={30} color={tintColor}/>
                 )
+            }
+        }
+    },
+    {
+        tabBarOptions: {
+            style: {
+                backgroundColor: "#273c75"
             }
         }
     }

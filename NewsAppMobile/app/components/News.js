@@ -5,14 +5,16 @@ import {
     View,
     ActivityIndicator,
     ScrollView,
-    Button,
+    TouchableOpacity,
     ToastAndroid,
-    FlatList, TouchableNativeFeedback, Alert, Platform, RefreshControl,
-    AsyncStorage
+    FlatList,
+    TouchableNativeFeedback,
+    Alert,
+    Platform,
+    RefreshControl,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Api from '../Api'
-
 
 class Article extends React.Component {
 
@@ -34,9 +36,6 @@ class Article extends React.Component {
 }
 
 export default class News extends React.Component {
-    static navigationOptions = {
-            title: "News",
-    };
 
     constructor(props) {
         super(props);
@@ -58,8 +57,6 @@ export default class News extends React.Component {
                     this.setState({
                         isLoading: false,
                         news: data.data
-                    }, function () {
-
                     });
                 } else {
                     if (Platform.OS === 'android')
@@ -83,11 +80,17 @@ export default class News extends React.Component {
         return this.fetchData()
     }
 
+    componentWillUpdate() {
+        return this.fetchData()
+    }
+
     render() {
+        const {navigation} = this.props;
+
         if (this.state.isLoading) {
             return (
                 <View style={[styles.container, styles.center]}>
-                    <ActivityIndicator size="large" color="#487eb0" />
+                    <ActivityIndicator size="large" color="#487eb0"/>
                 </View>
             );
         }
@@ -99,6 +102,9 @@ export default class News extends React.Component {
                                 refreshing={this.state.refreshing}
                                 onRefresh={this._onRefresh.bind(this)}/>
                         }>
+                <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('NewArticle')}>
+                    <Text style={styles.btnText}>Nouvel Article</Text>
+                </TouchableOpacity>
                 <FlatList
                     data={this.state.news}
                     renderItem={
@@ -143,5 +149,17 @@ const styles = StyleSheet.create({
         fontSize: 12,
         alignSelf: 'center',
         marginLeft: 10
+    },
+    btn: {
+        alignItems: 'center',
+        padding: 15,
+        margin: 4,
+        borderWidth: 1,
+        borderRadius: 5,
+        borderColor: "#273c75"
+    },
+    btnText: {
+        color: "#273c75",
+        fontSize: 16,
     }
 });

@@ -113,4 +113,16 @@ $app->group("/api", function() {
     return $this->response->withJson(["success" => true, "message" => "New article posted !"]);
   });
 
+  //Permet de récuperer les infos de l'utilisateur
+  $this->get('/user/me', function (Request $request, Response $response, array $args) {
+    $jwt = $request->getAttribute("jwt");
+
+    $sth = $this->db->prepare("SELECT users.username FROM users WHERE users.id = ?");
+    $sth->execute(array($jwt->user_id));
+    $user = $sth->fetch();
+    $json["success"] = true;
+    $json["data"] = $user;
+    return $this->response->withJson($json);
+  });
+
 });

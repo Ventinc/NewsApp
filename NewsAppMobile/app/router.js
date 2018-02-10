@@ -1,5 +1,4 @@
 import { StackNavigator, TabNavigator } from 'react-navigation';
-import { Platform, StatusBar } from 'react-native'
 import Entypo from 'react-native-vector-icons/Entypo'
 
 import News from './components/News';
@@ -7,6 +6,7 @@ import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import Profile from './components/Profile';
 import EditArticle from "./components/EditArticle";
+import ViewArticle from "./components/ViewArticle";
 
 export const ArticleNav = StackNavigator(
     {
@@ -22,6 +22,9 @@ export const ArticleNav = StackNavigator(
                 title: "Nouvel article",
             },
         },
+        ViewArticle: {
+            screen: ViewArticle,
+        }
     },
     {
         navigationOptions: {

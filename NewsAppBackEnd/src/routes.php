@@ -69,7 +69,7 @@ $app->group("/api", function() {
     }
 
     $now = new DateTime();
-    $future = new DateTime("+1 hour");
+    $future = new DateTime("+1 month");
     $jti= (new Base62)->encode(random_bytes(16));
     $payload = [
       "iat" => $now->getTimeStamp(),
@@ -103,7 +103,7 @@ $app->group("/api", function() {
     $content = $body["content"];
     $user_id = $jwt->user_id;
 
-    if (empty($title) || !isset($title) || empty($content) && !isset($contentn)) {
+    if (empty($title) || !isset($title) || empty($content) && !isset($content)) {
       return $response->withJson(['success' => false, 'message' => 'Need title and content']);
     }
 
@@ -125,4 +125,19 @@ $app->group("/api", function() {
     return $this->response->withJson($json);
   });
 
+  // Permet de récuperer l'article avec son ID unique
+  $this->get('/article/{id}', function(Request $request, Response $response, array $args) {
+    $id = $args["id"];
+    $sth = $this->db->prepare("SELECT news.id, news.title, news.content, users.username AS author FROM news INNER JOIN users ON users.id = news.user_id WHERE news.id = ?");
+    $sth->execute(array($args["id"]));
+    $news = $sth->fetch();
+    if ($news != null) {
+      $json["success"] = true;
+      $json["data"] = $news;
+    } else {
+      $json["success"] = false;
+      $json["message"] = "Article id \"" . $args["id"] . "\" doesn't exist";
+    }
+    return $this->response->withJson($json);
+  });
 });

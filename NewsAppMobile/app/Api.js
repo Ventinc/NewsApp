@@ -6,5 +6,6 @@ export default {
     LOGIN: api + "user/login",
     REGISTER: api + "user/register",
     USER_INFO: api + "user/me",
+    ARTICLE: api + "article/",
     CREATE_ARTICLE: api + "article/create"
 }

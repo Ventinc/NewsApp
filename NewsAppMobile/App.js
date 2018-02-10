@@ -11,7 +11,7 @@ export default class App extends React.Component {
         this.state = {
             signedIn: false,
             checkedSignIn: false
-        }
+        };
     }
 
     componentWillMount() {

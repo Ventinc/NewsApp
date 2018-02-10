@@ -6,7 +6,7 @@ $app->add(new \Slim\Middleware\JwtAuthentication([
   "attribute" => "jwt",
   "path" => "/api",
   "secure" => false,
-  "passthrough" => ["/api/news", "/api/user/register", "/api/user/login"],
+  "passthrough" => ["/api/user/register", "/api/user/login"],
   "secret" => "mysecrettoken",
   "error" => function($request, $response, $args) {
     $data["success"] = false;

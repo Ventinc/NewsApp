@@ -11,17 +11,20 @@ import {
     TouchableNativeFeedback,
     Alert,
     Platform,
-    RefreshControl,
+    RefreshControl, AsyncStorage,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Api from '../Api'
+import {USER_KEY} from "../auth";
 
 class Article extends React.Component {
 
     render() {
+        let {navigation} = this.props;
+
         return (
             <TouchableNativeFeedback
-                onPress={() => Alert.alert("Go view " + this.props.title)}
+                onPress={() => { navigation.navigate('ViewArticle', {id: this.props.id, title: this.props.title}) }}
                 background={Platform.OS === 'android' ? TouchableNativeFeedback.SelectableBackground() : ''}>
                 <View style={styles.article}>
                     <View style={styles.articleHeader}>
@@ -46,27 +49,35 @@ export default class News extends React.Component {
     }
 
     fetchData() {
-        return fetch(Api.NEWS)
-            .then((res) => {
-                const statusCode = res.status;
-                const data = res.json();
-                return Promise.all([statusCode, data]);
+        return AsyncStorage.getItem(USER_KEY).then(token => {
+            return fetch(Api.NEWS, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
             })
-            .then(([res, data]) => {
-                if (data.success === true) {
-                    this.setState({
-                        isLoading: false,
-                        news: data.data
-                    });
-                } else {
+                .then((res) => {
+                    const statusCode = res.status;
+                    const data = res.json();
+                    return Promise.all([statusCode, data]);
+                })
+                .then(([res, data]) => {
+                    if (data.success === true) {
+                        this.setState({
+                            isLoading: false,
+                            news: data.data
+                        });
+                    } else {
+                        if (Platform.OS === 'android')
+                            ToastAndroid.show(data.message, ToastAndroid.LONG);
+                    }
+                })
+                .catch((e) => {
                     if (Platform.OS === 'android')
-                        ToastAndroid.show(data.message, ToastAndroid.LONG);
-                }
-            })
-            .catch((e) => {
-                if (Platform.OS === 'android')
-                    ToastAndroid.show(e.message, ToastAndroid.SHORT);
-            });
+                        ToastAndroid.show(e.message, ToastAndroid.SHORT);
+                });
+        })
     }
 
     _onRefresh(){
@@ -108,7 +119,7 @@ export default class News extends React.Component {
                 <FlatList
                     data={this.state.news}
                     renderItem={
-                        ({item}) => <Article title={item.title} content={item.content} id={item.id} author={item.author} />
+                        ({item}) => <Article title={item.title} content={item.content} id={item.id} author={item.author} navigation={navigation} />
                     }
                     keyExtractor={(item, index) => index}
                 />

@@ -34,7 +34,7 @@ export default class Profile extends React.Component {
                     if (data.success === true) {
                         this.setState({
                             isLoading: false,
-                            username: data.username
+                            username: data.data.username
                         });
                     } else {
                         if (Platform.OS === 'android')
@@ -73,7 +73,7 @@ export default class Profile extends React.Component {
                     style={styles.avatar}
                     source={{uri: "http://lorempicsum.com/up/200/200/6"}}
                 />
-                <Text style={styles.username}>TOTO</Text>
+                <Text style={styles.username}>{this.state.username}</Text>
                 <TouchableOpacity
                     style={styles.btn}
                     onPress={() => onSignOut().then(() => navigation.navigate("SignedOut"))}

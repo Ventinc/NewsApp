@@ -27,7 +27,7 @@ export default class SignIn extends React.Component {
     async _loadInitialState() {
         let value = await AsyncStorage.getItem('user_token');
         if (value !== null) {
-            this.props.navigation.navigate('Home');
+            this.props.navigation.navigate('SignedIn');
         }
     }
 
